@@ -32,7 +32,7 @@ def main():
                 fill_rate_300=float(lab.event.mean()), fill_rate_300_trade=float(lab.event_trade.mean()),
                 cross_first=float((lab.fill_type == 3).mean()),
                 censored_300=float(((lab.event == 0) & (lab.duration >= 299.999)).mean()),
-                gap_censored=float(lab.gap_censored.mean()), median_fill_s=float(lab[lab.event == 1].duration.median()),
+                gap_censored=float(((lab.event == 0) & lab.gap_censored.astype(bool)).mean()),   # unfilled labels cut by a gap median_fill_s=float(lab[lab.event == 1].duration.median()),
                 order_events_m=(st.get("n_order_created", 0) + st.get("n_order_deleted", 0) + st.get("n_order_changed", 0)) / 1e6,
                 trades=st["trades"], chain_breaks=st["chain_breaks"],
                 frac_seconds_dropped=(st["seconds_invalid"] + st.get("seconds_quarantine", 0) + st["seconds_crossed"]) / max(1, secs),

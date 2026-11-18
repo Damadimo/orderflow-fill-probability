@@ -3,7 +3,8 @@
 1. Replays each recorded UTC day (data/raw/<YYYYMMDD>) with the same engine -> data/processed_live/.
 2. Scores the saved checkpoints and the B1/B2 baselines (fitted on the training days) on it.
 
-Run:  .venv/bin/python scripts/eval_new_data.py 20261118 20261119 ...
+Run:  .venv/bin/python scripts/eval_new_data.py [--refresh] 20261118 20261119 ...
+--refresh re-processes days that were processed while still being recorded.
 Writes results/new_data.json.
 """
 
@@ -17,7 +18,7 @@ import torch
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from fillprob.bins import surv_from_logits  # noqa: E402
-from fillprob.data import L2_FEATURES, SPLITS, Standardizer, load_days  # noqa: E402
+from fillprob.data import L2_FEATURES, L3_FEATURES, SPLITS, Standardizer, load_days  # noqa: E402
 from fillprob.evaluate import evaluate  # noqa: E402
 from fillprob.models import OrderFlowTransformer, SnapshotConvTransformer  # noqa: E402
 from fillprob.replay import process_day  # noqa: E402
@@ -27,10 +28,11 @@ RES = ROOT / "results"
 
 
 def main():
-    days = sys.argv[1:]
+    refresh = "--refresh" in sys.argv
+    days = [a for a in sys.argv[1:] if not a.startswith("--")]
     LIVE.mkdir(parents=True, exist_ok=True)
     for d in days:
-        if not (LIVE / f"{d}_stats.json").exists():
+        if refresh or not (LIVE / f"{d}_stats.json").exists():
             st = process_day(str(ROOT / "data" / "raw" / d), str(LIVE), recorded_pair="btcusd")
             print(d, {k: st[k] for k in ("examples", "chain_breaks", "seconds_crossed", "trades")}, flush=True)
     te = load_days(days, stride=3, proc=LIVE)
@@ -41,6 +43,7 @@ def main():
 
     out = [evaluate("B1_kaplan_meier", kaplan_meier(tr, te.df), te.df, tr)]
     out.append(evaluate("B2_cox_L2", cox(tr, te.df, L2_FEATURES)[0], te.df, tr))
+    out.append(evaluate("B2_cox_L2_L3", cox(tr, te.df, L2_FEATURES + L3_FEATURES)[0], te.df, tr))
     dev = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     for ck in sorted((ROOT / "checkpoints").glob("*.pt")):
         if ck.stem.startswith("smoke"):
@@ -67,7 +70,8 @@ def main():
         out.append(evaluate(ck.stem, surv_from_logits(torch.cat(zs)), te.df, tr))
     for r in out:
         print(json.dumps(r), flush=True)
-    (RES / "new_data.json").write_text(json.dumps({"days": days, "n": len(te.df), "results": out}, indent=1))
+    hours = sum(json.loads((LIVE / f"{d}_stats.json").read_text()).get("seconds_total", 0) for d in days) / 3600
+    (RES / "new_data.json").write_text(json.dumps({"days": days, "hours": hours, "n": len(te.df), "results": out}, indent=1))
 
 
 if __name__ == "__main__":

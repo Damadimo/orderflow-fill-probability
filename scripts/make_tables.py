@@ -9,6 +9,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 RES = ROOT / "results"
+PRIMARY = "oft_nopre"                                  # model quoted in the text and in newdata.tex
+B4 = "b4_matched" if (RES / "b4_matched.json").exists() else "b4_snapshot"
+ABLATIONS = [("oft_noqueue", "\\quad without queue tokens"), ("oft_noevents", "\\quad without event tokens")]
 
 
 def pct(x, d=1):
@@ -35,13 +38,13 @@ def main():
     if (RES / "baselines.json").exists():
         for r in json.loads((RES / "baselines.json").read_text()):
             res[r["model"]] = r
-    for tag in ("b4_snapshot", "oft_nopre", "oft_pre"):
+    for tag in (B4, "oft_nopre", "oft_pre", *(t for t, _ in ABLATIONS)):
         p = RES / f"{tag}.json"
         if p.exists():
             res[tag] = json.loads(p.read_text())
-    names = [("B1_kaplan_meier", "B1 Kaplan--Meier"), ("B3_queue_heuristic", "B3 queue rule"), ("B2_cox_L2", "B2 Cox (L2 features)"),
-             ("B2_cox_L2_L3", "B2+L3 Cox"), ("b4_snapshot", "B4 snapshot conv-Transformer"), ("oft_nopre", "OFT (no pretraining)"),
-             ("oft_pre", "OFT (pretrained)")]
+    names = [("B1_kaplan_meier", "B1 Kaplan--Meier"), ("B2_cox_L2", "B2 Cox (L2 features)"), ("B2_cox_L2_L3", "B2+L3 Cox"),
+             ("B3_queue_heuristic", "B3 queue rule"), (B4, "B4 snapshot conv-Transformer"), ("oft_nopre", "OFT (no pretraining)"),
+             ("oft_pre", "OFT (pretrained)")] + [(t, n) for t, n in ABLATIONS if t in res]
     best = {}
     for key, better in (("c_td", max), ("ibs", min), ("nll", min), ("brier@30s", min), ("ece@30s", min), ("uno_c@30s", max)):
         vals = [res[k][key] for k, _ in names if k in res]
@@ -53,16 +56,30 @@ def main():
             return "--"
         v = res[k][key]
         s = f"{v:.{d}f}"
-        return f"\\textbf{{{s}}}" if key in best and abs(v - best[key]) < 1e-12 else s
+        return f"\\textbf{{{s}}}" if key in best and s == f"{best[key]:.{d}f}" else s     # ties at shown precision
 
     rows = [f"{n} & {fmt(k, 'c_td')} & {fmt(k, 'uno_c@30s')} & {fmt(k, 'ibs')} & {fmt(k, 'brier@30s')} & {fmt(k, 'nll', 3)} & {fmt(k, 'ece@30s')} \\\\"
             for k, n in names]
     tab2 = "\n".join([
         r"\begin{tabular}{lrrrrrr}",
         r"\toprule",
-        r"Model (test: Oct 1 + Nov 1) & $C^{td}\uparrow$ & $C_{30s}\uparrow$ & IBS$\downarrow$ & Brier$_{30s}\downarrow$ & NLL$\downarrow$ & ECE$_{30s}\downarrow$ \\",
+        r"Model & $C^{td}\uparrow$ & $C_{30s}\uparrow$ & IBS$\downarrow$ & Brier$_{30s}\downarrow$ & NLL$\downarrow$ & ECE$_{30s}\downarrow$ \\",
         r"\midrule", *rows[:4], r"\midrule", *rows[4:], r"\bottomrule", r"\end{tabular}"])
     (out / "table_results.tex").write_text(tab2 + "\n")
+
+    nd = RES / "new_data.json"                       # never-seen recorded data -> macros for the text
+    if nd.exists():
+        d = json.loads(nd.read_text())
+        r = {x["model"]: x for x in d["results"]}
+
+        def c(k, key="c_td"):
+            return f"{r[k][key]:.3f}" if k in r else "--"
+        months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        days = [f"{months[int(x[4:6]) - 1]}~{int(x[6:])}" for x in d["days"]]
+        macros = {"NDhours": f"{d.get('hours', 0):.0f}", "NDn": f"{d['n'] / 1e3:.1f}k", "NDoft": c(PRIMARY),
+                  "NDcox": c("B2_cox_L2_L3"), "NDbfour": c(B4), "NDoftnll": c(PRIMARY, "nll"), "NDbfournll": c(B4, "nll"),
+                  "NDdays": days[0] if len(days) == 1 else f"{days[0]}--{days[-1].split('~')[1]}"}
+        (out / "newdata.tex").write_text("".join(f"\\newcommand{{\\{k}}}{{{v}}}\n" for k, v in macros.items()))
     print(tab1)
     print(tab2)
 

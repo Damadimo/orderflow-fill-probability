@@ -260,8 +260,12 @@ def calibration(surv_at_h, durations, events, h, n_bins=10):
     p = 1.0 - np.asarray(surv_at_h, dtype=float).ravel()
     if len(p) != len(t):
         raise ValueError(f"surv_at_h has {len(p)} values but there are {len(t)} orders")
+    order = np.argsort(p, kind="stable")
+    pos_bin = np.arange(len(p)) * n_bins // max(len(p), 1)          # equal-count bins by rank
+    ps = p[order]
+    first = np.r_[True, ps[1:] != ps[:-1]] if len(ps) else np.zeros(0, bool)
     b = np.empty(len(p), np.int64)
-    b[np.argsort(p, kind="stable")] = np.arange(len(p)) * n_bins // max(len(p), 1)
+    b[order] = pos_bin[first][np.cumsum(first) - 1]                  # tied predictions share one bin
     rows = [dict(bin=k, pred=p[m].mean(), obs=1.0 - float(km_curve(t[m], e[m], h)), n=int(m.sum()))
             for k in range(n_bins) if (m := b == k).any()]
     return pd.DataFrame(rows, columns=["bin", "pred", "obs", "n"])

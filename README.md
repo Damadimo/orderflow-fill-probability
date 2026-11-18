@@ -31,10 +31,16 @@ uv pip install --python .venv/bin/python websockets httpx orjson numpy pandas py
 .venv/bin/python scripts/build_dataset.py --jobs 5          # replay, quality checks, labels, tokens -> data/processed
 .venv/bin/python scripts/data_stats.py                      # results/data_stats.json
 .venv/bin/python scripts/baselines.py                       # B1-B3 -> results/baselines.json
-.venv/bin/python scripts/train.py --model snap --tag b4_snapshot --epochs 4 --dropout 0.15 --wd 0.05
+.venv/bin/python scripts/cox_val.py                        # Cox validation NLL (learning-curve reference)
+.venv/bin/python scripts/train.py --model snap --tag b4_matched  --epochs 4 --dropout 0.15 --wd 0.05
 .venv/bin/python scripts/train.py --model oft  --tag oft_nopre   --epochs 4 --dropout 0.15 --wd 0.05
 .venv/bin/python scripts/train.py --model oft  --tag oft_pre --pretrain-epochs 1 --epochs 4 --dropout 0.15 --wd 0.05
-.venv/bin/python scripts/eval_new_data.py 20261118 20261119 # never-seen data from collect/record.py
+.venv/bin/python scripts/train.py --model oft  --tag oft_noqueue  --epochs 4 --dropout 0.15 --wd 0.05 --no-queue
+.venv/bin/python scripts/train.py --model oft  --tag oft_noevents --epochs 4 --dropout 0.15 --wd 0.05 --no-events
+.venv/bin/python scripts/group_stats.py                     # young/old and short/long queue fill rates
+.venv/bin/python scripts/eval_new_data.py --refresh 20261118 20261119   # never-seen data from collect/record.py
+.venv/bin/python scripts/make_figures.py data results       # report/figs/*.pdf
+.venv/bin/python scripts/make_tables.py report              # LaTeX tables + new-data macros
 .venv/bin/python -m pytest tests -q                         # metric tests
 ```
 

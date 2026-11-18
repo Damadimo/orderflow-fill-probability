@@ -367,3 +367,15 @@ def test_bad_inputs_raise_or_give_nan():
                 lambda: to_bins([1.0, np.nan], [1, 0])):
         with pytest.raises(ValueError):
             bad()
+
+
+def test_ece_ties_share_a_bin():
+    """Tied predictions (e.g. Kaplan-Meier, one value per side) must not be split by row order."""
+    rng = np.random.default_rng(0)
+    n = 4000
+    d = rng.exponential(30.0, n)
+    d[n // 2:] *= 3.0                       # second half of the "day" fills slower
+    e = np.ones(n, dtype=int)
+    p_const = np.full(n, 0.5)               # one tied prediction for everyone
+    obs = 1.0 - float(km_curve(d, e, 30.0))
+    assert abs(ece_km(1.0 - p_const, d, e, 30.0) - abs(0.5 - obs)) < 1e-9

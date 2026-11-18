@@ -17,7 +17,7 @@ import pandas as pd
 PROC = Path(__file__).resolve().parent.parent / "data" / "processed"
 
 SPLITS = {
-    # Bitstamp's BTC/USD tick changed from $1 to $0.01 in June 2026; val/test are 1-cent days, so the
+    # Bitstamp's BTC/USD tick changed from $1 to $0.01 in May 2026 (first cent-priced orders May 20); val/test are 1-cent days, so the
     # three 1-cent days before them are kept in training
     "train": ["2025-12-01", "2026-01-01", "2026-02-01", "2026-03-01", "2026-04-01", "2026-05-01", "2026-06-01",
               "2026-07-01", "2026-08-01"],

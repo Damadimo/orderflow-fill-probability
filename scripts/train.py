@@ -93,11 +93,6 @@ def main():
         keep = np.sort(rng.choice(len(tr.df), int(len(tr.df) * a.train_frac), replace=False))
         tr.df, tr.events, tr.queue, tr.snaps = tr.df.iloc[keep].reset_index(drop=True), tr.events[keep], tr.queue[keep], tr.snaps[keep]
     print(f"loaded train {len(tr.df)} val {len(va.df)} test {len(te.df)} in {time.time() - t0:.0f}s", flush=True)
-    for sp in (tr, va, te):              # ablations: blank a token stream (padding everywhere)
-        if a.no_events:
-            sp.events[..., 0] = 0
-        if a.no_queue:
-            sp.queue[..., 5] = 0
 
     cols = L2_FEATURES if (a.model == "snap" or a.no_l3_globals) else GLOBAL_FEATURES
     sc = Standardizer(cols).fit(tr.df)
@@ -117,6 +112,11 @@ def main():
         model = SnapshotConvTransformer(len(cols), d=a.d, layers=a.layers, dropout=a.dropout)
         s = tr.snaps[rng.choice(len(tr.snaps), min(20000, len(tr.snaps)), replace=False)].astype(np.float32).reshape(-1, 40)
         model.set_snap_stats(s.mean(0), s.std(0) + 1e-3)
+    for sp in (tr, va, te):              # ablations: blank a token stream (padding everywhere), after the token stats
+        if a.no_events:
+            sp.events[..., 0] = 0
+        if a.no_queue:
+            sp.queue[..., 5] = 0
     # start the hazard head at the empirical (training) discrete hazards, so training starts from the KM curve
     k_idx, k_ev = btr
     at_risk = np.array([(k_idx >= k).sum() for k in range(20)], dtype=np.float64)
@@ -156,7 +156,7 @@ def main():
                 run += loss.item()
                 n_run += 1
                 if step % 200 == 0:
-                    rec = {"step": step, "epoch": ep + n_run / steps_per_epoch, "loss": run / n_run}
+                    rec = {"step": step, "epoch": step / steps_per_epoch, "loss": run / n_run}
                     if pretrain:
                         rec.update(info)
                     curve["pretrain" if pretrain else "train"].append(rec)

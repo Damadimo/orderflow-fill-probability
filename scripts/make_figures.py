@@ -79,7 +79,7 @@ def fig_sample(day="2026-11-01", seed=3):
     lab_txt = f"filled after {r.duration:.0f} s" if r.event == 1 else "censored"
     a2.text(0.0, -0.75, f"{int(r.q_n)} orders, {r.q_vol:.2f} BTC ahead\nlabel: {lab_txt}", fontsize=6.6, color=INK2, va="top", transform=a2.transData)
     a2.set_ylim(-1.35, 0.6)
-    fig.savefig(FIGS / "sample.pdf", bbox_inches="tight")
+    fig.savefig(FIGS / "sample.pdf", bbox_inches="tight", pad_inches=0.015)
     plt.close(fig)
     return dict(day=day, t=int(r.t), q_n=int(r.q_n), duration=float(r.duration), event=int(r.event), n_tokens=int(len(x)))
 
@@ -101,7 +101,7 @@ def fig_km():
     ax.set_xlim(0.1, 300)
     ax.legend(ncol=1, loc="upper left", handlelength=1.6)
     fig.tight_layout(pad=0.3)
-    fig.savefig(FIGS / "km.pdf", bbox_inches="tight")
+    fig.savefig(FIGS / "km.pdf", bbox_inches="tight", pad_inches=0.015)
     plt.close(fig)
 
 
@@ -129,7 +129,7 @@ def fig_learning(tags=("oft_pre", "oft_nopre", "b4_snapshot"), names=("OFT (pret
     a2.set_title("(b) validation loss", loc="left")
     a2.legend(loc="upper right")
     fig.tight_layout(pad=0.3)
-    fig.savefig(FIGS / "learning.pdf", bbox_inches="tight")
+    fig.savefig(FIGS / "learning.pdf", bbox_inches="tight", pad_inches=0.015)
     plt.close(fig)
 
 
@@ -159,11 +159,11 @@ def fig_qualitative(model_tag="oft_pre", base_tag="B2_cox_L2"):
     axes[0].set_ylabel("P(fill by t)")
     fig.text(0.99, 0.01, "thick pale = empirical (KM);  solid = OFT;  dotted = Cox (L2)", ha="right", fontsize=6.3, color=INK2)
     fig.tight_layout(pad=0.3, rect=(0, 0.04, 1, 1))
-    fig.savefig(FIGS / "qualitative.pdf", bbox_inches="tight")
+    fig.savefig(FIGS / "qualitative.pdf", bbox_inches="tight", pad_inches=0.015)
     plt.close(fig)
 
 
-def draw_sample(a1, a2, day="2026-11-01", seed=3):
+def draw_sample(a1, a2, day="2026-08-01", seed=8):
     lab = combine_labels(pd.read_parquet(PROC / f"{day}_labels.parquet"))
     lab["row"] = np.arange(len(lab))
     ev = np.load(PROC / f"{day}_events.npy", mmap_mode="r")
@@ -175,7 +175,7 @@ def draw_sample(a1, a2, day="2026-11-01", seed=3):
     x = x[x[:, 0] > 0]
     dt = -np.expm1(x[:, 4]) / 1e3
     x[:, 2] = x[:, 2] * (r.price / 100) / 1e4
-    groups = [("create", [1], BLUE, "o", 6), ("cancel", [2], INK2, "x", 7), ("fill/trade", [3, 4, 6], ORANGE, "^", 14), ("amend", [5], AQUA, "D", 7)]
+    groups = [("create", [1], BLUE, "o", 6), ("cancel", [2], INK2, "x", 7), ("fill/trade", [3, 4, 6], ORANGE, "^", 14), ("change", [5], AQUA, "D", 7)]
     for name, types, c, mk, sz in groups:
         m = np.isin(x[:, 0], types)
         if m.any():
@@ -183,19 +183,19 @@ def draw_sample(a1, a2, day="2026-11-01", seed=3):
     inq = x[:, 5] > 0
     a1.scatter(dt[inq], x[inq, 2], s=34, facecolors="none", edgecolors=INK, lw=0.8, label="ahead of V", zorder=4)
     a1.axhline(0, color=INK, lw=0.8, ls="--", zorder=2)
-    a1.set_xlim(dt.min() - 0.8, 4.5)
-    a1.text(0.3, 0.8, "V's\nprice", fontsize=6.2, color=INK, ha="left", va="bottom", linespacing=0.9)
+    a1.set_xlim(dt.min() - 0.8, 6.5)
+    a1.text(1.2, -1.0, "V's\nprice", fontsize=6.2, color=INK, ha="left", va="top", linespacing=0.9)
     a1.set_xlabel("seconds before posting")
     a1.set_ylabel("price \u2212 V's price ($)")
     a1.set_title(f"(a) {len(x)} event tokens", loc="left")
-    a1.legend(ncol=5, loc="lower left", bbox_to_anchor=(-0.02, 1.1), handletextpad=0.05, columnspacing=0.55, borderaxespad=0, fontsize=6.5)
+    a1.legend(ncol=5, loc="lower left", bbox_to_anchor=(-0.02, 1.17), handletextpad=0.05, columnspacing=0.55, borderaxespad=0, fontsize=6.5)
     m = q[:, 5] > 0
     sizes, ages = np.expm1(q[m, 0]) / 100, np.expm1(q[m, 1])
     left, tot = 0.0, sizes.sum()
     cmap = plt.get_cmap("Blues")
     for sz, age in zip(sizes, ages):
         a2.barh(0, sz, left=left, height=0.6, color=cmap(0.35 + 0.6 * min(1, np.log1p(age) / np.log1p(600))), edgecolor="white", lw=1.2)
-        if sz > 0.16 * tot:
+        if sz > 0.25 * tot:
             a2.text(left + sz / 2, 0, f"{age:.0f}s", ha="center", va="center", color="white", fontsize=6.2)
         left += sz
     a2.barh(0, 0.03 * tot, left=left, height=0.6, color=ORANGE)
@@ -203,10 +203,10 @@ def draw_sample(a1, a2, day="2026-11-01", seed=3):
     a2.set_yticks([])
     a2.set_xlim(0, left * 1.2)
     a2.set_xlabel("BTC queued ahead")
-    a2.set_title("(b) queue (dark = old)", loc="left")
+    a2.set_title("(b) queue ahead", loc="left")
     a2.grid(False)
     lab_txt = f"filled after {r.duration:.0f} s" if r.event == 1 else "censored"
-    a2.text(0.0, -0.62, f"{int(r.q_n)} orders ahead\n{lab_txt}", fontsize=6.3, color=INK2, va="top", transform=a2.transData)
+    a2.text(0.04 * left, -0.62, f"{int(r.q_n)} orders ahead\n{lab_txt}", fontsize=6.3, color=INK2, va="top", transform=a2.transData)
     a2.set_ylim(-1.45, 0.6)
     return dict(day=day, t=int(r.t), q_n=int(r.q_n), duration=float(r.duration), event=int(r.event), n_tokens=int(len(x)))
 
@@ -229,43 +229,58 @@ def draw_km(ax):
 
 
 def fig_data():
-    fig = plt.figure(figsize=(5.5, 1.75))
+    fig = plt.figure(figsize=(5.5, 1.4))
     gs = fig.add_gridspec(1, 3, width_ratios=[1.7, 0.9, 1.15], wspace=0.55)
     a1, a2, a3 = fig.add_subplot(gs[0]), fig.add_subplot(gs[1]), fig.add_subplot(gs[2])
     info = draw_sample(a1, a2)
     draw_km(a3)
-    fig.savefig(FIGS / "data.pdf", bbox_inches="tight")
+    fig.savefig(FIGS / "data.pdf", bbox_inches="tight", pad_inches=0.015)
     plt.close(fig)
     return info
 
 
-def fig_results(model_tag="oft_pre", base_tag="B2_cox_L2", cox_val_nll=None):
-    """(a) validation NLL per epoch; (b, c) predicted vs empirical fill curves on the test days."""
-    fig = plt.figure(figsize=(5.5, 1.75))
+def fig_results(model_tag="oft_pre", base_tag="B2_cox_L2", b4_tag=None):
+    """(a) learning curves (training and validation NLL); (b, c) predicted vs empirical test fill curves."""
+    fig = plt.figure(figsize=(5.5, 1.4))
     gs = fig.add_gridspec(1, 3, width_ratios=[1.0, 1.15, 1.15], wspace=0.42)
-    a0, a1, a2 = fig.add_subplot(gs[0]), fig.add_subplot(gs[1]), fig.add_subplot(gs[2])
-    for tag, name, c in (("oft_pre", "OFT pretrained", BLUE), ("oft_nopre", "OFT", AQUA), ("b4_snapshot", "B4 snapshot", ORANGE)):
+    a0, a1, a2 = (fig.add_subplot(gs[k]) for k in range(3))
+    b4_tag = b4_tag or ("b4_matched" if (RES / "b4_matched_curve.json").exists() else "b4_snapshot")
+    for tag, name, c, show_train in ((model_tag, "OFT", BLUE, True), ("oft_pre", "OFT pretrained", AQUA, False),
+                                     (b4_tag, "B4", ORANGE, True)):
         pth = RES / f"{tag}_curve.json"
-        if pth.exists():
-            va = pd.DataFrame(json.loads(pth.read_text())["val"])
-            if len(va):
-                a0.plot(va.epoch, va.val_nll, color=c, marker="o", ms=3, label=name)
-    if cox_val_nll is not None:
-        a0.axhline(cox_val_nll, color=INK2, ls="--", lw=0.9)
-        a0.text(1.0, cox_val_nll, "Cox (B2+L3)", fontsize=6.2, color=INK2, va="bottom")
+        if not pth.exists() or (tag == "oft_pre" and model_tag == "oft_pre"):
+            continue
+        cur = json.loads(pth.read_text())
+        va, tr = pd.DataFrame(cur["val"]), pd.DataFrame(cur["train"])
+        spe = va.step.iloc[0] / va.epoch.iloc[0]                       # optimiser steps per epoch
+        tre = tr.groupby(np.ceil(tr.step / spe)).loss.mean()           # mean training loss per epoch
+        if show_train:
+            a0.plot(tre.index, tre.values, color=c, lw=1.0, ls="--")
+        a0.plot(va.epoch, va.val_nll, color=c, marker="o", ms=3, label=name)
+    cv = RES / "cox_val.json"
+    if cv.exists():
+        cox = json.loads(cv.read_text())["B2_cox_L2_L3"]["val_nll"]
+        a0.axhline(cox, color=INK2, ls=":", lw=1.0)
+        a0.annotate("Cox (B2+L3)", (0.02, cox), xycoords=("axes fraction", "data"), xytext=(0, 2), textcoords="offset points",
+                    fontsize=6.2, color=INK2, va="bottom", ha="left")
+    ys = np.concatenate([ln.get_ydata() for ln in a0.get_lines()])
+    a0.set_ylim(ys.min() - 0.012, ys.max() + 0.035)                 # room for the Cox label above its line
+    a0.set_xticks(range(1, 5))
     a0.set_xlabel("epoch")
-    a0.set_ylabel("validation NLL")
+    a0.set_ylabel("NLL")
     a0.set_title("(a) learning curves", loc="left")
-    a0.legend(loc="upper right", fontsize=6.3)
+    lo, hi = a0.get_ylim()
+    a0.legend(loc="center right", bbox_to_anchor=(1.03, (2.668 - lo) / (hi - lo)), fontsize=6.0, handlelength=1.4,
+              labelspacing=0.2, borderaxespad=0)
     idx = pd.read_parquet(RES / "test_index.parquet")
     s_m = np.load(RES / f"surv_{model_tag}.npy")
     s_b = np.load(RES / f"surv_{base_tag}.npy")
     grid = np.geomspace(0.5, 300, 60)
-    qv = idx.q_vol
+    qv, age = idx.q_vol, idx.q_age_mean
     mid = qv.between(qv.quantile(0.4), qv.quantile(0.6))
-    age = idx.q_age_mean
-    panels = ((a1, {"short queue": qv <= qv.quantile(0.2), "long queue": qv >= qv.quantile(0.8)}, "(b) by volume ahead"),
-              (a2, {"young queue": mid & (age <= age[mid].quantile(0.25)), "old queue": mid & (age >= age[mid].quantile(0.75))}, "(c) same volume, by age"))
+    panels = ((a1, {"short": qv <= qv.quantile(0.2), "long": qv >= qv.quantile(0.8)}, "(b) by volume ahead"),
+              (a2, {"young": mid & (age <= age[mid].quantile(0.25)), "old": mid & (age >= age[mid].quantile(0.75))},
+               "(c) same volume, by age"))
     for ax, groups, title in panels:
         for (name, sel), c in zip(groups.items(), (BLUE, ORANGE)):
             sel = sel.to_numpy()
@@ -279,18 +294,17 @@ def fig_results(model_tag="oft_pre", base_tag="B2_cox_L2", cox_val_nll=None):
         ax.set_xlabel("t (s)")
         ax.set_ylim(0, 1)
         ax.set_title(title, loc="left")
-        ax.legend(loc="upper left", fontsize=6.3)
+        ax.legend(loc="upper left", fontsize=6.3, handlelength=1.2)
     a1.set_ylabel("P(fill by t)")
-    fig.savefig(FIGS / "results.pdf", bbox_inches="tight")
+    fig.savefig(FIGS / "results.pdf", bbox_inches="tight", pad_inches=0.015)
     plt.close(fig)
-
 
 if __name__ == "__main__":
     which = sys.argv[1:] or ["data", "learning", "qualitative"]
     if "data" in which:
         print(fig_data())
     if "results" in which:
-        fig_results(*(sys.argv[2:4] if len(sys.argv) > 3 else ()))
+        fig_results(*sys.argv[2:5])
     if "sample" in which:
         print(fig_sample())
     if "km" in which:
