@@ -1,0 +1,91 @@
+results/oft_pre.json
+  s_8062d9489ed852::t_1bb118632b7280 1
+report/newdata.tex
+  s_8062d9489ed852::t_1e7459ccfb9a92 1-6
+results/b4_matched.json
+  s_8062d9489ed852::t_649911c5cc39e4 1-19
+results/b4_matched_curve.json
+  s_8062d9489ed852::t_649911c5cc39e4 1
+results/b4_snapshot.json
+  s_8062d9489ed852::t_478c9af550705f 1
+results/data_stats_days.csv
+  s_8062d9489ed852::t_478c9af550705f 1-13
+tests/test_metrics.py
+  s_8062d9489ed852::t_5b2efa970fcde0 370-381
+results/hourly_ci.json
+  s_8062d9489ed852::t_3655d2309cabff 6-16
+  s_8062d9489ed852::t_8552dc7ba836a3 1-5,17-18
+scripts/make_tables.py
+  s_8062d9489ed852::t_1e7459ccfb9a92 13-14,41,47,69-79
+  s_8062d9489ed852::t_1bb118632b7280 12
+  s_8062d9489ed852::t_0c19b896e31444 59
+  s_8062d9489ed852::t_0e216a3d47dada 45-46,66,80-82
+fillprob/data.py
+  s_8062d9489ed852::t_25f5899258941b 20
+README.md
+  s_8062d9489ed852::t_9b5678c95b479e 34-35,38-43
+scripts/make_figures.py
+  s_8062d9489ed852::t_38f8e944323a5d 242-244,246-247,252-256,259-263,265,270,279,281-283,307
+  s_8062d9489ed852::t_db4d51a76625e4 248-249,251,257-258
+  s_8062d9489ed852::t_182be362b8b3bd 266-268,272-274
+  s_8062d9489ed852::t_0043733cccc816 198
+  s_8062d9489ed852::t_55782171b710d5 166
+  s_8062d9489ed852::t_ce5f9304f28110 82,104,132,162,237,299
+  s_8062d9489ed852::t_afec89044509ef 178,186-187,191,206,209,232,264,297
+scripts/cox_val.py
+  s_8062d9489ed852::t_dcdc2dadafa451 1-27
+scripts/recompute_ece.py
+  s_8062d9489ed852::t_25f5899258941b 1-49
+results/oft_nopre.json
+  s_8062d9489ed852::t_478c9af550705f 1
+scripts/eval_new_data.py
+  s_8062d9489ed852::t_091d6fcde5b6bc 6-7,21,31-32,35,46,73-74
+results/new_data.json
+  s_8062d9489ed852::t_15be44be69813f 5-6,10-22,26-70,74-118
+results/group_stats.json
+  s_8062d9489ed852::t_c72cf206f4bbbb 1-55,68-69
+  s_8062d9489ed852::t_1bb118632b7280 62-67
+  s_8062d9489ed852::t_5cd398de93e128 56-61
+scripts/run_queue3.sh
+  s_8062d9489ed852::t_9ded049afcccbe 2
+  s_8062d9489ed852::t_9bfbfdfca30051 1,3-8
+scripts/train.py
+  s_8062d9489ed852::t_dcdc2dadafa451 159
+  s_8062d9489ed852::t_9076c4244bd4b9 115-119
+scripts/group_stats.py
+  s_8062d9489ed852::t_0b3a75fcde2f4a 1-63
+report/table_data.tex
+  s_8062d9489ed852::t_1e7459ccfb9a92 1-9
+results/baselines.json
+  s_8062d9489ed852::t_478c9af550705f 14-16,30-32,46-48,62-64
+results/data_stats.json
+  s_8062d9489ed852::t_478c9af550705f 12,31,50
+fillprob/metrics.py
+  s_8062d9489ed852::t_5b2efa970fcde0 263-266,268
+report/table_results.tex
+  s_8062d9489ed852::t_1e7459ccfb9a92 1-14
+scripts/data_stats.py
+  s_8062d9489ed852::t_5b2efa970fcde0 35
+scripts/hourly_ci.py
+  s_8062d9489ed852::t_b6a3a340dcb5ed 1-45
+results/cox_val.json
+  s_8062d9489ed852::t_e0b317e6a5780e 1-15
+results/oft_pre_curve.json
+  s_8062d9489ed852::t_d2f596aff5d0f3 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "972721eab3fb7ede7de3b568d067320a2d6b6179",
+  "prompts": {},
+  "sessions": {
+    "s_8062d9489ed852": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5bc0807a-3dc1-43bd-a239-739514e093e9",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Adam Abdalla <adam1.abdalla@gmail.com>"
+    }
+  }
+}
