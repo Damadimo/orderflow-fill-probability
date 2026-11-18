@@ -1,14 +1,14 @@
 \begin{tabular}{lrrrrrr}
 \toprule
-Model (test: Oct 1 + Nov 1) & $C^{td}\uparrow$ & $C_{30s}\uparrow$ & IBS$\downarrow$ & Brier$_{30s}\downarrow$ & NLL$\downarrow$ & ECE$_{30s}\downarrow$ \\
+Model & $C^{td}\uparrow$ & $C_{30s}\uparrow$ & IBS$\downarrow$ & Brier$_{30s}\downarrow$ & NLL$\downarrow$ & ECE$_{30s}\downarrow$ \\
 \midrule
-B1 Kaplan--Meier & 0.506 & 0.503 & 0.195 & 0.257 & 2.768 & 0.158 \\
-B3 queue rule & 0.651 & 0.680 & 0.248 & 0.333 & 6.362 & 0.332 \\
+B1 Kaplan--Meier & 0.506 & 0.503 & 0.195 & 0.257 & 2.768 & 0.083 \\
 B2 Cox (L2 features) & 0.649 & 0.685 & 0.176 & 0.219 & 2.677 & 0.055 \\
-B2+L3 Cox & \textbf{0.668} & \textbf{0.709} & \textbf{0.172} & \textbf{0.210} & 2.658 & 0.052 \\
+B2+L3 Cox & 0.668 & 0.709 & 0.172 & 0.210 & 2.658 & 0.052 \\
+B3 queue rule & 0.651 & 0.680 & 0.248 & 0.333 & 6.362 & 0.332 \\
 \midrule
-B4 snapshot conv-Transformer & 0.660 & 0.699 & 0.174 & 0.211 & \textbf{2.613} & \textbf{0.028} \\
-OFT (no pretraining) & -- & -- & -- & -- & -- & -- \\
-OFT (pretrained) & -- & -- & -- & -- & -- & -- \\
+B4 snapshot conv-Transformer & 0.659 & 0.697 & 0.174 & 0.212 & 2.615 & 0.032 \\
+OFT (no pretraining) & \textbf{0.677} & \textbf{0.721} & \textbf{0.170} & \textbf{0.203} & \textbf{2.576} & \textbf{0.028} \\
+OFT (pretrained) & \textbf{0.677} & \textbf{0.721} & \textbf{0.170} & \textbf{0.203} & 2.581 & 0.029 \\
 \bottomrule
 \end{tabular}

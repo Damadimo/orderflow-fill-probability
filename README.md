@@ -44,6 +44,23 @@ uv pip install --python .venv/bin/python websockets httpx orjson numpy pandas py
 .venv/bin/python -m pytest tests -q                         # metric tests
 ```
 
+## Results so far (test days Oct 1 + Nov 1, 113k virtual orders)
+
+| Model | C^td | NLL | IBS |
+|---|---|---|---|
+| B1 Kaplan–Meier | 0.506 | 2.768 | 0.195 |
+| B2 Cox, L2 features | 0.649 | 2.677 | 0.176 |
+| B2+L3 Cox | 0.668 | 2.658 | 0.172 |
+| B4 snapshot conv-Transformer | 0.659 | 2.615 | 0.174 |
+| **OFT** (900,244 params) | **0.677** | **2.576** | **0.170** |
+| OFT, no event tokens | 0.669 | 2.604 | 0.173 |
+
+- Removing the queue tokens changes nothing (the context token already holds queue summaries). Removing the event tokens drops C^td to the Cox level.
+- One epoch of masked-event pretraining lowers validation NLL but not test NLL.
+- On never-seen recorded data (`results/new_data.json`) the OFT also leads.
+
+**In progress:** final test on full recorded days, longer training and pretraining, trade-only labels, Bitfinex as a second venue.
+
 ## Layout
 
 ```

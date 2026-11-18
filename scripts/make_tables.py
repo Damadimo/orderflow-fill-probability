@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 RES = ROOT / "results"
 PRIMARY = "oft_nopre"                                  # model quoted in the text and in newdata.tex
 B4 = "b4_matched" if (RES / "b4_matched.json").exists() else "b4_snapshot"
-ABLATIONS = [("oft_noqueue", "\\quad without queue tokens"), ("oft_noevents", "\\quad without event tokens")]
+ABLATIONS = []   # token ablations are reported in the text; add e.g. ("oft_noqueue", "\\quad without queue tokens") to list them
 
 
 def pct(x, d=1):

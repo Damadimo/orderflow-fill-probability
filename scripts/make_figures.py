@@ -229,7 +229,7 @@ def draw_km(ax):
 
 
 def fig_data():
-    fig = plt.figure(figsize=(5.5, 1.4))
+    fig = plt.figure(figsize=(5.5, 1.32))
     gs = fig.add_gridspec(1, 3, width_ratios=[1.7, 0.9, 1.15], wspace=0.55)
     a1, a2, a3 = fig.add_subplot(gs[0]), fig.add_subplot(gs[1]), fig.add_subplot(gs[2])
     info = draw_sample(a1, a2)
@@ -241,7 +241,7 @@ def fig_data():
 
 def fig_results(model_tag="oft_pre", base_tag="B2_cox_L2", b4_tag=None):
     """(a) learning curves (training and validation NLL); (b, c) predicted vs empirical test fill curves."""
-    fig = plt.figure(figsize=(5.5, 1.4))
+    fig = plt.figure(figsize=(5.5, 1.32))
     gs = fig.add_gridspec(1, 3, width_ratios=[1.0, 1.15, 1.15], wspace=0.42)
     a0, a1, a2 = (fig.add_subplot(gs[k]) for k in range(3))
     b4_tag = b4_tag or ("b4_matched" if (RES / "b4_matched_curve.json").exists() else "b4_snapshot")
