@@ -6,3 +6,8 @@ data/
 *.jsonl
 *.gz
 .env
+checkpoints/
+logs/
+results/*.npy
+report/figs/*.png
+results/smoke_*
